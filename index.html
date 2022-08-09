@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Testing Multiple ASINS</title>
+</head>
+
+<body>
+
+    <div id="imgdiv">
+
+    </div>
+
+    <button id="send">Send Request</button>
+
+    <script>
+
+        let sendButton = document.getElementById("send")
+        let imgDiv = document.getElementById("imgdiv")
+
+        sendButton.addEventListener("click", () => {
+            let request = new XMLHttpRequest();
+            request.open("POST", "http://localhost:8000/get-screenshot")
+            request.setRequestHeader("Content-Type", "application/json");
+
+            let payload = { asin: ["B09NSW34G8", "B017NPCSLI", "B08L5FM4JC"] }
+
+            request.send(JSON.stringify(payload));
+
+            request.addEventListener("load", () => {
+                let data = JSON.parse(request.response)
+                let allImages = data.imageURLs
+
+                allImages.forEach((item) => {
+                    console.log(item)
+                    let buffer = item.data;
+                    // console.log(buffer)
+
+                    let img = document.createElement("img")
+                    img.setAttribute("height", "500px");
+                    var arrayBufferView = new Uint8Array(buffer);
+                    var blob = new Blob([arrayBufferView], { type: "image/jpeg" });
+                    var urlCreator = window.URL || window.webkitURL;
+                    var imageUrl = urlCreator.createObjectURL(blob);
+                    img.src = imageUrl
+                    imgDiv.appendChild(img);
+                })
+
+
+            })
+
+        })
+
+
+
+    </script>
+</body>
+
+</html>
