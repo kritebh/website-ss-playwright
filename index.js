@@ -1,11 +1,14 @@
 const express = require("express");
 const { chromium } = require("playwright");
+const cors = require("cors")
+
 
 const PORT = 8000;
 
 const app = express();
 
 //! Middleware
+app.use(cors())
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use(express.static("images"));
@@ -20,6 +23,13 @@ app.post("/get-screenshot", async (req, res) => {
   let arrayOfAsins = inputObj.asin;
 
   let arrayOfImageURLs = [];
+
+  if(arrayOfAsins.length >10){
+    res.status(500).json({
+      message: "Can't render more than 10 ASINs at a single time",
+    });
+  }
+
   for (let i = 0; i < arrayOfAsins.length; i++) {
     let asin = arrayOfAsins[i];
     let url = `https://www.amazon.in/dp/${asin}`;
@@ -27,12 +37,14 @@ app.post("/get-screenshot", async (req, res) => {
     let browser = await chromium.launch();
 
     let page = await browser.newPage();
-    await page.setViewportSize({ width: 1280, height: 1080 });
+    await page.setViewportSize({ width: 512, height: 512 });
     await page.goto(url);
-    await page.screenshot({ path: `./images/${asin}.png` });
+    // await page.screenshot({ path: `./images/${asin}.png` });
+    const buffer = await page.screenshot();
     await browser.close();
 
-    arrayOfImageURLs.push(`/${asin}.png`);
+    // arrayOfImageURLs.push(`/${asin}.png`);
+    arrayOfImageURLs.push(buffer);
   }
 
   console.log("Screenshot Taken Successfully !!!");
@@ -45,5 +57,5 @@ app.post("/get-screenshot", async (req, res) => {
 
 //! Starting Server
 app.listen(PORT, function () {
-  console.log(`Server Running on PORT :: ${PORT}`);
+  console.log(`Server Running on http://localhost:${PORT}`);
 });
