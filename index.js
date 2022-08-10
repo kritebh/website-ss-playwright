@@ -37,7 +37,7 @@ app.post("/get-screenshot", async (req, res) => {
     let browser = await chromium.launch();
 
     let page = await browser.newPage();
-    await page.setViewportSize({ width: 512, height: 512 });
+    await page.setViewportSize({ width: 1366, height: 768 });
     await page.goto(url);
     // await page.screenshot({ path: `./images/${asin}.png` });
     const buffer = await page.screenshot();

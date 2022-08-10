@@ -22,15 +22,21 @@
         let imgDiv = document.getElementById("imgdiv")
 
         sendButton.addEventListener("click", () => {
+
+            imgDiv.innerText = "Loading..."
+
             let request = new XMLHttpRequest();
             request.open("POST", "http://localhost:8000/get-screenshot")
             request.setRequestHeader("Content-Type", "application/json");
 
-            let payload = { asin: ["B09NSW34G8", "B017NPCSLI", "B08L5FM4JC"] }
+            // let payload = { asin: ["B09NSW34G8", "B017NPCSLI", "B08L5FM4JC"] }
+            // let payload = { asin: ["B09NSW34G8", "B017NPCSLI"] }
+            let payload = { asin: ["B09NSW34G8"] }
 
             request.send(JSON.stringify(payload));
 
             request.addEventListener("load", () => {
+                imgDiv.innerHTML="";
                 let data = JSON.parse(request.response)
                 let allImages = data.imageURLs
 
