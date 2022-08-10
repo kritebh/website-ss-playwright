@@ -1,14 +1,13 @@
 const express = require("express");
 const { chromium } = require("playwright");
-const cors = require("cors")
-
+const cors = require("cors");
 
 const PORT = 8000;
 
 const app = express();
 
 //! Middleware
-app.use(cors())
+app.use(cors());
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use(express.static("images"));
@@ -24,7 +23,7 @@ app.post("/get-screenshot", async (req, res) => {
 
   let arrayOfImageURLs = [];
 
-  if(arrayOfAsins.length >10){
+  if (arrayOfAsins.length > 10) {
     res.status(500).json({
       message: "Can't render more than 10 ASINs at a single time",
     });
