@@ -3,7 +3,6 @@ const { chromium } = require("playwright");
 const cors = require("cors");
 
 const PORT = 8000;
-
 const app = express();
 
 //! Middleware
@@ -15,6 +14,19 @@ app.use(express.static("images"));
 app.get("/", (req, res) => {
   res.send("<h1>Hello World!!!</h1>");
 });
+
+
+// Playwright Function
+async function takeScreenshot(url) {
+  let browser = await chromium.launch();
+  let page = await browser.newPage();
+  await page.setViewportSize({ width: 1366, height: 768 });
+  await page.goto(url);
+  const buffer = await page.screenshot();
+  await browser.close();
+  return buffer;
+}
+
 
 app.post("/get-screenshot", async (req, res) => {
   console.time("Time Taken");
@@ -33,28 +45,25 @@ app.post("/get-screenshot", async (req, res) => {
     let asin = arrayOfAsins[i];
     let url = `https://www.amazon.in/dp/${asin}`;
 
-    let browser = await chromium.launch();
+    //Taking Screenshot
+    let buffer = await takeScreenshot(url);
 
-    let page = await browser.newPage();
-    await page.setViewportSize({ width: 1366, height: 768 });
-    await page.goto(url);
-    // await page.screenshot({ path: `./images/${asin}.png` });
-    const buffer = await page.screenshot();
-    await browser.close();
-
-    // arrayOfImageURLs.push(`/${asin}.png`);
+    // Storing Buffer
     arrayOfImageURLs.push(buffer);
+
   }
 
   console.log("Screenshot Taken Successfully !!!");
   console.timeEnd("Time Taken");
+
   res.status(200).json({
     message: "Images Rendered Successfully !!!",
     imageURLs: arrayOfImageURLs,
   });
+
 });
 
 //! Starting Server
 app.listen(PORT, function () {
-  console.log(`Server Running on http://localhost:${PORT}`);
+  console.log(`Server Running on http://localhost:${PORT} `, process.pid);
 });
