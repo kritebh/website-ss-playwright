@@ -3,22 +3,8 @@ const { chromium } = require("playwright");
 const cors = require("cors");
 
 
-//Multiprocessing Code
-
+//Import Fork
 const { fork } = require("child_process")
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 
 const PORT = 8000;
