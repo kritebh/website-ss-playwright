@@ -2,6 +2,25 @@ const express = require("express");
 const { chromium } = require("playwright");
 const cors = require("cors");
 
+
+//Multiprocessing Code
+
+const { fork } = require("child_process")
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 const PORT = 8000;
 const app = express();
 
@@ -29,7 +48,7 @@ async function takeScreenshot(url) {
 
 
 app.post("/get-screenshot", async (req, res) => {
-  console.time("Time Taken");
+  // console.time("Time Taken");
   let inputObj = req.body;
   let arrayOfAsins = inputObj.asin;
 
@@ -46,15 +65,18 @@ app.post("/get-screenshot", async (req, res) => {
     let url = `https://www.amazon.in/dp/${asin}`;
 
     //Taking Screenshot
-    let buffer = await takeScreenshot(url);
-
-    // Storing Buffer
-    arrayOfImageURLs.push(buffer);
-
+    // let buffer = await takeScreenshot(url);
+    const child = fork("./takeScreenshot.js")
+    child.send(url);
+    child.on("message", () => {
+      // Storing Buffer
+      child.kill();
+    })
+    arrayOfImageURLs.push(`/${asin}.png`);
   }
 
-  console.log("Screenshot Taken Successfully !!!");
-  console.timeEnd("Time Taken");
+  // console.log("Screenshot Taken Successfully !!!");
+  // console.timeEnd("Time Taken");
 
   res.status(200).json({
     message: "Images Rendered Successfully !!!",
@@ -65,5 +87,5 @@ app.post("/get-screenshot", async (req, res) => {
 
 //! Starting Server
 app.listen(PORT, function () {
-  console.log(`Server Running on http://localhost:${PORT} `, process.pid);
+  console.log(`Server Running on http://localhost:${PORT}`, "\nProcess ID : ", process.pid);
 });
